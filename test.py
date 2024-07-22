@@ -5,6 +5,9 @@ torch.ops.load_library("chap3_kernels.so")
 def run_ex1A(C, A, B):
     return torch.ops.chap3_kernels.pyEx1A(C, A, B)
     
+def run_ex1B(C, A, B):
+    return torch.ops.chap3_kernels.pyEx1B(C, A, B)
+    
 def test_mm(func, size):
     A = torch.randn((size, size), device="cuda")
     B = torch.randn((size, size), device="cuda")
@@ -19,4 +22,5 @@ if __name__ == "__main__":
     ]
     for size in sizes:
         test_mm(run_ex1A, size)
+        test_mm(run_ex1B, size)
         print(f"Passed all tests for size = {size}")    

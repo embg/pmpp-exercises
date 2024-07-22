@@ -5,6 +5,8 @@
 
 #define cdiv(a, b) (((a) + ((b) - 1)) / (b))
 
+///////////// HELPERS /////////////
+
 // Does not own memory!
 class Vector {
   public:
@@ -39,6 +41,8 @@ float dotProd(Vector A, Vector B) {
     return result;
 }
 
+///////////// KERNELS /////////////
+
 __global__ void ex1A(
     float* C, const float* A, const float* B, size_t Width)
 {
@@ -59,6 +63,32 @@ void launchEx1A(float* C, const float* A, const float* B, size_t Width)
 {
     dim3 blockShape(1, BLOCK_SIZE);
     dim3 gridShape(1, cdiv(Width, BLOCK_SIZE));
-    // const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
+    const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
     ex1A<<<gridShape, blockShape>>>(C, A, B, Width);
 }
+
+__global__ void ex1B(
+    float* C, const float* A, const float* B, size_t Width)
+{
+    const size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    if (col < Width) {
+        // All dot products will use the same col from B
+        Vector bVec(&B[col], Width /* size */, Width /* stride */);
+
+        for (size_t row = 0; row < Width; row++) {
+            // Each dot product needs a different row from B
+            Vector aVec(&A[row * Width], Width /* size */, 1 /* stride */);
+            C[row * Width + col] = dotProd(aVec, bVec);
+        }
+    }
+}
+
+void launchEx1B(float* C, const float* A, const float* B, size_t Width)
+{
+    dim3 blockShape(BLOCK_SIZE);
+    dim3 gridShape(cdiv(Width, BLOCK_SIZE));
+    const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
+    ex1B<<<gridShape, blockShape>>>(C, A, B, Width);
+}
+
+
