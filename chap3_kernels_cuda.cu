@@ -64,7 +64,7 @@ void launchEx1A(float* C, const float* A, const float* B, size_t size)
     dim3 blockShape(1, BLOCK_SIZE);
     dim3 gridShape(1, cdiv(size, BLOCK_SIZE));
     const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
-    ex1A<<<gridShape, blockShape>>>(C, A, B, size);
+    ex1A<<<gridShape, blockShape, 0, stream>>>(C, A, B, size);
 }
 
 __global__ void ex1B(
@@ -88,7 +88,7 @@ void launchEx1B(float* C, const float* A, const float* B, size_t size)
     dim3 blockShape(BLOCK_SIZE);
     dim3 gridShape(cdiv(size, BLOCK_SIZE));
     const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
-    ex1B<<<gridShape, blockShape>>>(C, A, B, size);
+    ex1B<<<gridShape, blockShape, 0, stream>>>(C, A, B, size);
 }
 
 __global__ void ex2(
@@ -107,5 +107,5 @@ void launchEx2(float* c, const float* A, const float* b, size_t size)
     dim3 blockShape(1, BLOCK_SIZE);
     dim3 gridShape(1, cdiv(size, BLOCK_SIZE));
     const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
-    ex2<<<gridShape, blockShape>>>(c, A, b, size);
+    ex2<<<gridShape, blockShape, 0, stream>>>(c, A, b, size);
 }
