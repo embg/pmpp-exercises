@@ -52,7 +52,7 @@ __global__ void ex1A(
         Vector aVec(&A[row * size], size /* size */, 1 /* stride */);
 
         for (size_t col = 0; col < size; col++) {
-            // Each dot product needs a different row from B
+            // Each dot product needs a different col from B
             Vector bVec(&B[col], size /* size */, size /* stride */);
             C[row * size + col] = dotProd(aVec, bVec);
         }
@@ -76,7 +76,7 @@ __global__ void ex1B(
         Vector bVec(&B[col], size /* size */, size /* stride */);
 
         for (size_t row = 0; row < size; row++) {
-            // Each dot product needs a different row from B
+            // Each dot product needs a different row from A
             Vector aVec(&A[row * size], size /* size */, 1 /* stride */);
             C[row * size + col] = dotProd(aVec, bVec);
         }
