@@ -8,7 +8,7 @@ setup(
             "chap3_kernels",
             [
                 "chap3_kernels.cpp",
-                "chap3_kernels.cu",
+                "chap3_kernels_cuda.cu",
             ],
             libraries=["cuda"]
         )
