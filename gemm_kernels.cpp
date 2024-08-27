@@ -1,4 +1,4 @@
-#include "chap3_kernels.h"
+#include "gemm_kernels.h"
 #include "ATen/ATen.h"
 #include "torch/extension.h"
 
@@ -33,7 +33,7 @@ void pyEx2(at::Tensor c, at::Tensor A, at::Tensor b) {
 }
 
 
-TORCH_LIBRARY(chap3_kernels, m) {
+TORCH_LIBRARY(gemm_kernels, m) {
   m.def("pyEx1A", pyEx1A);
   m.def("pyEx1B", pyEx1B);
   m.def("pyEx2", pyEx2);

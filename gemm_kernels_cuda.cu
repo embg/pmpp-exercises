@@ -1,7 +1,7 @@
 #include <cuda.h>
 #include <ATen/cuda/CUDAContext.h>
 
-#include "chap3_kernels.h"
+#include "gemm_kernels.h"
 
 #define cdiv(a, b) (((a) + ((b) - 1)) / (b))
 

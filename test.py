@@ -1,18 +1,18 @@
 import torch
 import numpy as np
-torch.ops.load_library("chap3_kernels.so")
+torch.ops.load_library("gemm_kernels.so")
 torch.manual_seed(0)
 
 ITERS = 5
 
 def run_ex1A(C, A, B):
-    return torch.ops.chap3_kernels.pyEx1A(C, A, B)
+    return torch.ops.gemm_kernels.pyEx1A(C, A, B)
     
 def run_ex1B(C, A, B):
-    return torch.ops.chap3_kernels.pyEx1B(C, A, B)
+    return torch.ops.gemm_kernels.pyEx1B(C, A, B)
 
 def run_ex2(c, A, b):
-    return torch.ops.chap3_kernels.pyEx2(c, A, b)
+    return torch.ops.gemm_kernels.pyEx2(c, A, b)
     
 def test_mm(func, shapeA, shapeB):
     for _ in range(ITERS):
