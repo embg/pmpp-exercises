@@ -32,9 +32,19 @@ void pyEx2(at::Tensor c, at::Tensor A, at::Tensor b) {
   );
 }
 
+void pyChap6(at::Tensor C, at::Tensor A, at::Tensor B) {
+  launchChap6(
+      C.data_ptr<float>(),
+      A.data_ptr<float>(),
+      B.data_ptr<float>(),
+      A.size(0)
+  );
+}
+
 
 TORCH_LIBRARY(gemm_kernels, m) {
   m.def("pyEx1A", pyEx1A);
   m.def("pyEx1B", pyEx1B);
   m.def("pyEx2", pyEx2);
+  m.def("pyChap6", pyChap6);
 }

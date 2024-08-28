@@ -111,34 +111,50 @@ void launchEx2(float* c, const float* A, const float* b, size_t size)
     ex2<<<gridShape, blockShape, 0, stream>>>(c, A, b, size);
 }
 
-__global__ void ex1B(
-    float* C, const float* A, const float* B, size_t size)
+// Note: for this kernel, B is col-major
+// Note: assume TILE_WIDTH divides stride
+__global__ void chap6(
+    float* C, const float* A, const float* B, size_t stride)
 {
-    const size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    if (col < size) {
-        // All dot products will use the same col from B
-        Vector bVec(&B[col], size /* size */, size /* stride */);
-
-        for (size_t row = 0; row < size; row++) {
-            // Each dot product needs a different row from A
-            Vector aVec(&A[row * size], size /* size */, 1 /* stride */);
-            C[row * size + col] = dotProd(aVec, bVec);
+    __shared__ float tileA[TILE_WIDTH][TILE_WIDTH];
+    __shared__ float tileB[TILE_WIDTH][TILE_WIDTH];
+    
+    int bx = blockIdx.x; int by = blockIdx.y;
+    int tx = threadIdx.x; int ty = threadIdx.y;
+    
+    int row = by*TILE_WIDTH + ty;
+    int col = bx*TILE_WIDTH + tx;
+    
+    float acc = 0.0f;
+    
+    for (int k = 0; k < stride; k += TILE_WIDTH) {
+        tileA[ty][tx] = A[row * stride + k * TILE_WIDTH + tx];
+        tileB[ty][tx] = B[col * stride + k * TILE_WIDTH + ty];
+        
+        __syncthreads();
+        for (int k = 0; k < TILE_WIDTH; k++) {
+            acc += tileA[ty][k] * tileB[k][tx];
         }
+        __syncthreads();
     }
+    
+    C[row * stride + col] = acc;
 }
 
 // Note: for this kernel, B is col-major
-void launchChap6(float* C, const float* A, const float* B, size_t size)
+// Note: assume TILE_WIDTH divides stride
+void launchChap6(float* C, const float* A, const float* B, size_t stride)
 {
-    dim3 blockShape(BLOCK_SIZE_CHAP6);
-    dim3 gridShape(cdiv(size, BLOCK_SIZE_CHAP6), cdiv(size, BLOCK_SIZE_CHAP6));
+    dim3 blockShape(TILE_WIDTH, TILE_WIDTH);
+    dim3 gridShape(cdiv(stride, TILE_WIDTH), cdiv(stride, TILE_WIDTH));
     const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
-    chap6<<<gridShape, blockShape, 48 * 1024, stream>>>(C, A, B, size);
+    chap6<<<gridShape, blockShape, 0, stream>>>(C, A, B, stride);
 }
 
+/*
 // Note: for this kernel, B is col-major
 // Note: I DID NOT RUN THIS CODE
-void chap6_NotDebugged(
+__global__ void chap6_NotDebugged(
     float* C, const float* A, const float* B, size_t size)
 {
     // B is col-major, but tileB is row-major
@@ -189,3 +205,4 @@ void chap6_NotDebugged(
         }
     }
 }
+*/
