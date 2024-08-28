@@ -128,12 +128,17 @@ __global__ void chap6(
     float acc = 0.0f;
     
     for (int k = 0; k < stride; k += TILE_WIDTH) {
-        tileA[ty][tx] = A[row * stride + k * TILE_WIDTH + tx];
-        tileB[ty][tx] = B[col * stride + k * TILE_WIDTH + ty];
+        tileA[ty][tx] = A[row * stride + k + tx];
+        
+        // NAIVE
+        // tileB[ty][tx] = B[col * stride + k + ty];
+        
+        // OPTIMIZED
+        tileB[tx][ty] = B[(bx * TILE_WIDTH + ty) * stride + k + tx];
         
         __syncthreads();
-        for (int k = 0; k < TILE_WIDTH; k++) {
-            acc += tileA[ty][k] * tileB[k][tx];
+        for (int i = 0; i < TILE_WIDTH; i++) {
+            acc += tileA[ty][i] * tileB[i][tx];
         }
         __syncthreads();
     }
