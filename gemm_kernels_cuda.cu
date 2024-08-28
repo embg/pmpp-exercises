@@ -177,6 +177,8 @@ void chap6_NotDebugged(
                 acc[row] += tileColB[row] * tileA[row * BLOCK_SIZE_CHAP6 + col];
             }
         }
+        
+        __syncthreads();
     }
     
     for (int i = 0; i < BLOCK_SIZE_CHAP6; i++) {
