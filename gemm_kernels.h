@@ -4,7 +4,11 @@
 #include <cstdint>
 #include <cuda.h>
 
+// For chap3 ex1A, ex1B
 constexpr size_t BLOCK_SIZE = 256;
+
+// For chap6
+constexpr size_t BLOCK_SIZE_CHAP6 = 64;
 
 // Only square matrices are supported
 void launchEx1A(float* C, const float* A, const float* B, size_t size);
